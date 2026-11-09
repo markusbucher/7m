@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "KirchheimHandball"
+rootProject.name = "7m"
 include(":app", ":shared")

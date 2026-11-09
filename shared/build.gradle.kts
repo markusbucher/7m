@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "de.kirchheim.handball.shared"
+        namespace = "de.tanpau.sevenm.shared"
         compileSdk = 37
         minSdk = 26
         androidResources { enable = true }
@@ -23,10 +23,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.components.resources)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.components.resources)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
@@ -48,5 +48,5 @@ kotlin {
 }
 
 compose.resources {
-    packageOfResClass = "de.kirchheim.handball.resources"
+    packageOfResClass = "de.tanpau.sevenm.resources"
 }

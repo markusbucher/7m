@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "de.kirchheim.handball"
+    namespace = "de.tanpau.sevenm"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "de.kirchheim.handball"
+        applicationId = "de.tanpau.sevenm"
         minSdk = 26
         targetSdk = 36
         versionCode = 2

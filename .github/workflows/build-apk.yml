@@ -26,7 +26,7 @@ jobs:
           path: shared/build/reports/tests/
       - uses: actions/upload-artifact@v4
         with:
-          name: KirchheimHandball-APK
+          name: 7m-APK
           path: app/build/outputs/apk/debug/app-debug.apk
 
   ios:
@@ -45,6 +45,6 @@ jobs:
         run: brew install xcodegen && cd iosApp && xcodegen
       - name: App für den Simulator bauen (ohne Signatur)
         run: >
-          xcodebuild -project iosApp/KirchheimHandball.xcodeproj -scheme KirchheimHandball
+          xcodebuild -project iosApp/7m.xcodeproj -scheme 7m
           -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
           CODE_SIGNING_ALLOWED=NO build

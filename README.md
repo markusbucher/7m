@@ -1,4 +1,4 @@
-# Kirchheim Handball (Android & iOS)
+# 7m (Android & iOS)
 
 Zeigt für die SG HD-Kirchheim (Männer Bezirksklasse Staffel 2 Rhein-Neckar, Saison 2026/27):
 Tabelle · Gesamtspielplan · Spielplan Kirchheim · Torschützenliste (aus den PDF-Spielberichten).
@@ -22,6 +22,9 @@ gespeicherten Stand auch offline. Ein fehlerhafter Spielbericht wird höchstens 
 
 Mannschaft und Liga sind fest eingestellt: `Team.kt` und `ApiParser.LEAGUE_URL`.
 
+Kennungen: Android-App-ID und Kotlin-Paket `de.tanpau.sevenm` (Android erlaubt keine Teile, die mit einer Ziffer
+beginnen), iOS-Bundle-ID `de.tanpau.7m`.
+
 ## Tests
 
 ```bash
@@ -40,7 +43,7 @@ Auf einem Mac zusätzlich im iOS-Simulator:
 Die Datei liegt unter `app/build/outputs/apk/debug/app-debug.apk`.
 
 **Variante B – GitHub:** Reiter *Actions → Bauen und testen → Run workflow*. Nach einigen Minuten steht unter
-*Artifacts* die Datei `KirchheimHandball-APK`.
+*Artifacts* die Datei `7m-APK`.
 
 Installieren: APK aufs Handy übertragen, antippen, Installation aus dieser Quelle einmalig erlauben.
 
@@ -55,7 +58,7 @@ brew install xcodegen
 ```
 
 ```bash
-cd iosApp && xcodegen && open KirchheimHandball.xcodeproj
+cd iosApp && xcodegen && open 7m.xcodeproj
 ```
 
 In Xcode unter *Signing & Capabilities* das eigene Team wählen und auf Gerät oder Simulator starten.
