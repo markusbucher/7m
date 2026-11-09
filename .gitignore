@@ -4,3 +4,10 @@ app/build/
 local.properties
 .idea/
 *.iml
+.kotlin/
+shared/build/
+# iOS: Projekt wird mit XcodeGen aus iosApp/project.yml erzeugt
+iosApp/*.xcodeproj/
+iosApp/build/
+xcuserdata/
+DerivedData/

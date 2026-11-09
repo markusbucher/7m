@@ -1,6 +1,6 @@
-package de.kirchheim.handball
+package de.tanpau.sevenm
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /** Eine Zeile der Tabelle, wie sie der Verband liefert. */
 data class TableRow(
@@ -17,7 +17,7 @@ data class TableRow(
 ) {
     val goals: String get() = "$goalsFor:$goalsAgainst"
     val points: String get() = "$pointsFor:$pointsAgainst"
-    val isKirchheim: Boolean get() = team.contains("Kirchheim")
+    val isKirchheim: Boolean get() = Team.isOwn(team)
 }
 
 /** Spiel ohne Ergebnis, das am grünen Tisch mit 2:0 gewertet wurde. */
@@ -53,8 +53,8 @@ data class Game(
             Wertung.KEINE -> guestGoals
         }
 
-    val homeIsKirchheim: Boolean get() = home.contains("Kirchheim")
-    val guestIsKirchheim: Boolean get() = guest.contains("Kirchheim")
+    val homeIsKirchheim: Boolean get() = Team.isOwn(home)
+    val guestIsKirchheim: Boolean get() = Team.isOwn(guest)
     val involvesKirchheim: Boolean get() = homeIsKirchheim || guestIsKirchheim
 
     /** 'S', 'U' oder 'N' aus Sicht von Kirchheim, null wenn offen oder Kirchheim nicht beteiligt. */
@@ -111,4 +111,8 @@ data class AppState(
     val goals: Map<String, ReportGoals>,
     val warnings: List<String>,
     val updatedAtMillis: Long
-)
+) {
+    companion object {
+        val EMPTY = AppState(null, emptyMap(), emptyList(), 0L)
+    }
+}

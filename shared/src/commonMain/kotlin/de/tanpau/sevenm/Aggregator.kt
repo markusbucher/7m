@@ -1,4 +1,4 @@
-package de.kirchheim.handball
+package de.tanpau.sevenm
 
 /** Reine Rechenlogik ohne Android-Abhängigkeiten. */
 object Aggregator {
@@ -51,7 +51,7 @@ object Aggregator {
         else null
     }
 
-    /** Anteil nicht zugeordneter Tore, als Hinweis in der Torschützenliste. */
-    fun unassigned(goals: Map<String, ReportGoals>): Int =
-        goals.values.sumOf { it.unassignedHome + it.unassignedGuest }
+    /** Nicht zugeordnete Tore der Spiele dieser Liga, als Hinweis in der Torschützenliste. */
+    fun unassigned(games: List<Game>, goals: Map<String, ReportGoals>): Int =
+        games.sumOf { g -> goals[g.id]?.let { it.unassignedHome + it.unassignedGuest } ?: 0 }
 }

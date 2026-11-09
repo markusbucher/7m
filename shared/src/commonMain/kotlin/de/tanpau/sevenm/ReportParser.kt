@@ -1,4 +1,4 @@
-package de.kirchheim.handball
+package de.tanpau.sevenm
 
 /**
  * Wertet den Text eines Handball4All-Spielberichts (Presseinformation) aus.
@@ -10,6 +10,7 @@ package de.kirchheim.handball
 object ReportParser {
     private val goalLine = Regex("""(\d+):(\d+)\s+(7m-)?Tor durch\s*(.*)$""")
     private val playerPart = Regex("""^(.*?)\s*\((\d+),\s*[^)]*\)\s*$""")
+    private val whitespace = Regex("\\s+")
 
     /** Gibt null zurück, wenn der Text kein einziges Tor enthält. */
     fun parse(lines: List<String>): ReportGoals? {
@@ -22,7 +23,7 @@ object ReportParser {
         var seen = false
 
         for (raw in lines) {
-            val line = raw.replace(Regex("\\s+"), " ").trim()
+            val line = raw.replace(whitespace, " ").trim()
             val m = goalLine.find(line) ?: continue
             val h = m.groupValues[1].toInt()
             val g = m.groupValues[2].toInt()
