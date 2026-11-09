@@ -1,35 +1,48 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "de.kirchheim.handball"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "de.kirchheim.handball"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "2.0"
+    }
+
+    signingConfigs {
+        // Echter Schlüssel, falls über Umgebungsvariablen/Gradle-Properties angegeben (z. B. in der CI).
+        val storeFilePath = providers.environmentVariable("SIGNING_STORE_FILE").orNull
+        if (storeFilePath != null) {
+            create("release") {
+                storeFile = file(storeFilePath)
+                storePassword = providers.environmentVariable("SIGNING_STORE_PASSWORD").orNull
+                keyAlias = providers.environmentVariable("SIGNING_KEY_ALIAS").orNull
+                keyPassword = providers.environmentVariable("SIGNING_KEY_PASSWORD").orNull
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Mit dem Debug-Schlüssel signiert, damit die APK direkt installierbar ist.
-            signingConfig = signingConfigs.getByName("debug")
+            // Ohne eigenen Schlüssel mit dem Debug-Schlüssel signiert, damit die APK direkt installierbar ist.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
-    packaging { resources.excludes += setOf("META-INF/*.kotlin_module") }
+    packaging { resources.excludes += setOf("META-INF/*.kotlin_module", "META-INF/INDEX.LIST") }
 }
 
 dependencies {
-    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation(project(":shared"))
+    implementation(libs.androidx.activity.compose)
 }

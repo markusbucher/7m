@@ -1,21 +1,50 @@
-name: APK bauen
+name: Bauen und testen
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
+  pull_request:
 jobs:
-  build:
+  android:
+    name: Android (Tests + APK)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - uses: gradle/actions/setup-gradle@v4
+      - name: Tests (gemeinsamer Code)
+        run: ./gradlew :shared:testAndroidHostTest --no-daemon
       - name: Debug-APK bauen
-        run: "./gradlew assembleDebug --no-daemon"
+        run: ./gradlew :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Testberichte
+          path: shared/build/reports/tests/
       - uses: actions/upload-artifact@v4
         with:
           name: KirchheimHandball-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+
+  ios:
+    name: iOS (Tests + Simulator-Build)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Tests (gemeinsamer Code auf iOS)
+        run: ./gradlew :shared:iosSimulatorArm64Test --no-daemon
+      - name: Xcode-Projekt erzeugen
+        run: brew install xcodegen && cd iosApp && xcodegen
+      - name: App für den Simulator bauen (ohne Signatur)
+        run: >
+          xcodebuild -project iosApp/KirchheimHandball.xcodeproj -scheme KirchheimHandball
+          -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO build

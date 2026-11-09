@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "KirchheimHandball"
-include(":app")
+include(":app", ":shared")
