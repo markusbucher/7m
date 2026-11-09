@@ -45,4 +45,10 @@ class ModelsTest {
         assertEquals("Mo 01.03.27", Format.date(LocalDate(2027, 3, 1)))
         assertEquals("So 08.11.26", Format.date(LocalDate(2026, 11, 8)))
     }
+
+    @Test
+    fun shortensActualized() {
+        assertEquals("08.11.2026, 15:25h", Format.actualized("Letzte Änderung: So, 08.11.2026, 15:25h"))
+        assertEquals("etwas anderes", Format.actualized("etwas anderes"))
+    }
 }

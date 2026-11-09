@@ -19,6 +19,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -26,6 +34,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,7 +76,7 @@ fun App(platform: Platform) {
 }
 
 @Composable
-private fun AppScreen(vm: AppViewModel) {
+internal fun AppScreen(vm: AppViewModel) {
     val s by vm.state.collectAsStateWithLifecycle()
     val c = LocalAppColors.current
     val list = rememberLazyListState()
@@ -106,25 +115,42 @@ private fun AppScreen(vm: AppViewModel) {
 private fun Header(s: UiState, onRefresh: () -> Unit, onInfo: () -> Unit) {
     val c = LocalAppColors.current
     val league = s.data.league
-    val subtitle = when {
-        s.refreshing -> s.progress
-        league == null -> "Noch keine Daten"
-        else -> "${league.headline2.ifEmpty { league.name }} · Stand ${league.actualized}"
+    val (line1, line2) = when {
+        s.refreshing -> s.progress to null
+        league == null -> "Noch keine Daten" to null
+        else -> league.name.ifEmpty { league.headline2 } to "Stand ${Format.actualized(league.actualized)}"
     }
     Row(
         Modifier.fillMaxWidth().background(c.primary).statusBarsPadding()
-            .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+            .padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
-            Txt(Team.DISPLAY_NAME, 20.sp, c.onAccent, bold = true)
-            Txt(subtitle, 12.sp, c.onAccent)
+            FitText(Team.DISPLAY_NAME, c.onAccent, maxSize = 20.sp, bold = true)
+            Txt(line1, 12.sp, c.onAccent.copy(alpha = 0.9f), maxLines = 2)
+            line2?.let { FitText(it, c.onAccent.copy(alpha = 0.9f), maxSize = 12.sp) }
         }
-        TextButton(onClick = onRefresh, enabled = !s.refreshing) {
-            Text("Aktualisieren", color = if (s.refreshing) c.onAccent.copy(alpha = 0.5f) else c.onAccent)
+        Spacer(Modifier.width(8.dp))
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            HeaderButton("Aktualisieren", enabled = !s.refreshing, filled = true, onClick = onRefresh)
+            HeaderButton("Info", enabled = true, filled = false, onClick = onInfo)
         }
-        TextButton(onClick = onInfo) { Text("Info", color = c.onAccent) }
     }
+}
+
+/** Kompakter Knopf im Kopfbereich, ähnlich dem Android-Knopf der ersten Version. */
+@Composable
+private fun HeaderButton(label: String, enabled: Boolean, filled: Boolean, onClick: () -> Unit) {
+    val c = LocalAppColors.current
+    val fg = if (filled) c.primary else c.onAccent
+    Txt(
+        label, 14.sp, if (enabled) fg else fg.copy(alpha = 0.5f), bold = filled, maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (filled) c.onAccent.copy(alpha = if (enabled) 1f else 0.7f) else Color.Transparent)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 7.dp)
+    )
 }
 
 @Composable
@@ -137,10 +163,11 @@ private fun TabBar(current: Tab, onSelect: (Tab) -> Unit) {
                 Modifier.weight(1f)
                     .semantics { selected = sel }
                     .clickable(role = Role.Tab) { onSelect(t) }
-                    .padding(vertical = 14.dp),
+                    .padding(horizontal = 2.dp, vertical = 14.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Txt(t.label, 13.sp, if (sel) c.accent else c.muted, bold = sel)
+                // Passt sich bei großer Systemschrift an, statt umzubrechen ("Torschütz-en").
+                FitText(t.label, if (sel) c.accent else c.muted, maxSize = 13.sp, bold = sel)
             }
         }
     }
@@ -152,7 +179,7 @@ private fun LazyListScope.tableItems(league: League) {
     item { Heading(league.name.ifEmpty { "Tabelle" }) }
     item {
         TableRowLayout(highlight = false) {
-            for ((t, w) in listOf("#" to 0.5f, "Mannschaft" to 3.2f, "Sp" to 0.8f, "S" to 0.6f, "U" to 0.6f, "N" to 0.6f, "Tore" to 1.6f, "Pkt" to 1.4f)) {
+            for ((t, w) in listOf("#" to 0.5f, "Mannschaft" to 3.6f, "Sp" to 0.7f, "S" to 0.6f, "U" to 0.6f, "N" to 0.6f, "Tore" to 1.8f, "Pkt" to 1.2f)) {
                 Cell(t, w, bold = true, muted = true, left = t == "Mannschaft")
             }
         }
@@ -160,13 +187,13 @@ private fun LazyListScope.tableItems(league: League) {
     items(league.table, key = { "t" + it.rank + it.team }) { r ->
         TableRowLayout(highlight = r.isKirchheim) {
             Cell(r.rank.toString(), 0.5f)
-            Cell(r.team, 3.2f, bold = r.isKirchheim, left = true)
-            Cell(r.played.toString(), 0.8f)
+            Cell(r.team, 3.6f, bold = r.isKirchheim, left = true)
+            Cell(r.played.toString(), 0.7f)
             Cell(r.won.toString(), 0.6f)
             Cell(r.draw.toString(), 0.6f)
             Cell(r.lost.toString(), 0.6f)
-            Cell(r.goals, 1.6f)
-            Cell(r.points, 1.4f, bold = true)
+            Cell(r.goals, 1.8f)
+            Cell(r.points, 1.2f, bold = true)
         }
     }
 }
@@ -222,8 +249,8 @@ private fun GameCard(league: League, g: Game, kirchheim: Boolean, s: UiState, vm
         Txt(meta, 12.sp, c.muted)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Txt(g.home, 15.sp, c.fg, bold = g.homeIsKirchheim)
-                Txt(g.guest, 15.sp, c.fg, bold = g.guestIsKirchheim)
+                Txt(g.home, 15.sp, c.fg, bold = g.homeIsKirchheim, maxLines = 1)
+                Txt(g.guest, 15.sp, c.fg, bold = g.guestIsKirchheim, maxLines = 1)
             }
             Column(horizontalAlignment = Alignment.End) {
                 Txt(g.shownHome?.toString() ?: "–", 15.sp, c.fg, bold = true)
@@ -305,8 +332,8 @@ private fun LazyListScope.scorerItems(league: League, s: UiState, vm: AppViewMod
         TableRowLayout(highlight = Team.isOwn(sc.team)) {
             Cell(sc.rank.toString(), 0.6f)
             Column(Modifier.weight(3.2f)) {
-                Txt(sc.name, 14.sp, c.fg, bold = true)
-                Txt(sc.team, 11.sp, c.muted)
+                Txt(sc.name, 14.sp, c.fg, bold = true, maxLines = 2)
+                Txt(sc.team, 11.sp, c.muted, maxLines = 1)
             }
             Cell(sc.goals.toString(), 0.9f, bold = true)
             Cell(sc.sevenMeter.toString(), 0.8f)
@@ -371,7 +398,7 @@ private fun TeamChips(teams: List<String>, current: String?, onSelect: (String?)
         fun chip(label: String, key: String?) {
             val sel = current == key
             Txt(
-                label, 13.sp, if (sel) c.onAccent else c.fg, bold = sel,
+                label, 13.sp, if (sel) c.onAccent else c.fg, bold = sel, maxLines = 1,
                 modifier = Modifier.semantics { selected = sel }
                     .background(if (sel) c.primary else c.card)
                     .clickable(role = Role.RadioButton) { onSelect(key) }
@@ -384,8 +411,19 @@ private fun TeamChips(teams: List<String>, current: String?, onSelect: (String?)
 }
 
 @Composable
-private fun Txt(t: String, size: TextUnit, color: Color, bold: Boolean = false, modifier: Modifier = Modifier, align: TextAlign? = null) {
-    Text(t, modifier = modifier, fontSize = size, color = color, fontWeight = if (bold) FontWeight.Bold else null, textAlign = align)
+private fun Txt(
+    t: String,
+    size: TextUnit,
+    color: Color,
+    bold: Boolean = false,
+    modifier: Modifier = Modifier,
+    align: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        t, modifier = modifier, fontSize = size, color = color, fontWeight = if (bold) FontWeight.Bold else null,
+        textAlign = align, maxLines = maxLines, overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -410,12 +448,40 @@ private fun TableRowLayout(highlight: Boolean, content: @Composable RowScope.() 
     )
 }
 
+/**
+ * Tabellenzelle. Textspalten (left) brechen höchstens auf zwei Zeilen um; Zahlen bleiben einzeilig und
+ * werden bei großer Systemschrift kleiner statt abgeschnitten ("152:1…").
+ */
 @Composable
 private fun RowScope.Cell(t: String, weight: Float, bold: Boolean = false, muted: Boolean = false, left: Boolean = false) {
     val c = LocalAppColors.current
-    Txt(
-        t, 13.sp, if (muted) c.muted else c.fg, bold = bold,
-        modifier = Modifier.weight(weight),
-        align = if (left) TextAlign.Start else TextAlign.Center
+    val color = if (muted) c.muted else c.fg
+    if (left) {
+        Txt(t, 13.sp, color, bold = bold, modifier = Modifier.weight(weight), align = TextAlign.Start, maxLines = 2)
+    } else {
+        FitText(t, color, maxSize = 13.sp, bold = bold, modifier = Modifier.weight(weight), align = TextAlign.Center)
+    }
+}
+
+/** Einzeiliger Text, der bis auf 60 % verkleinert wird, wenn er sonst nicht passt. */
+@Composable
+private fun FitText(
+    t: String,
+    color: Color,
+    maxSize: TextUnit,
+    bold: Boolean = false,
+    modifier: Modifier = Modifier,
+    align: TextAlign = TextAlign.Start
+) {
+    BasicText(
+        t,
+        modifier = modifier,
+        style = LocalTextStyle.current.merge(
+            TextStyle(color = color, fontWeight = if (bold) FontWeight.Bold else null, textAlign = align)
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Clip,
+        softWrap = false,
+        autoSize = TextAutoSize.StepBased(minFontSize = maxSize * 0.6f, maxFontSize = maxSize, stepSize = 0.5.sp)
     )
 }

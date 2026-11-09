@@ -15,8 +15,8 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - name: Tests (gemeinsamer Code)
-        run: ./gradlew :shared:testAndroidHostTest --no-daemon
+      - name: Tests (gemeinsamer Code) und Layout-Screenshots
+        run: ./gradlew :shared:testAndroidHostTest :shared:desktopTest --no-daemon
       - name: Debug-APK bauen
         run: ./gradlew :app:assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
@@ -24,6 +24,11 @@ jobs:
         with:
           name: Testberichte
           path: shared/build/reports/tests/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Screenshots
+          path: shared/build/screenshots/
       - uses: actions/upload-artifact@v4
         with:
           name: 7m-APK

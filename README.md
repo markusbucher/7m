@@ -16,7 +16,8 @@ gespeicherten Stand auch offline. Ein fehlerhafter Spielbericht wird höchstens 
 | `shared/src/commonMain` | Gemeinsamer Code für Android und iOS: Datenmodell, JSON- und Spielbericht-Auswertung, Torschützenliste, Speicherung, Oberfläche (Compose Multiplatform) |
 | `shared/src/androidMain` | Android-spezifisch: PDF-Text mit PDFBox-Android, Dateien |
 | `shared/src/iosMain` | iOS-spezifisch: PDF-Text mit PDFKit, Dateien, Einstieg `MainViewController()` |
-| `shared/src/commonTest` | Tests (laufen auf Android/JVM und im iOS-Simulator) |
+| `shared/src/commonTest` | Tests (laufen auf Android/JVM, Desktop-JVM und im iOS-Simulator) |
+| `shared/src/desktopTest` | Screenshot-Test: rendert die Oberfläche ohne Gerät als PNG |
 | `app` | Android-App (nur `MainActivity`, Icon, Manifest) |
 | `iosApp` | iOS-App (SwiftUI-Hülle); das Xcode-Projekt wird mit [XcodeGen](https://github.com/yonaskolb/XcodeGen) aus `project.yml` erzeugt |
 
@@ -28,6 +29,13 @@ Kennung überall (Kotlin-Paket, Android-App-ID, iOS-Bundle-ID): `de.tanpau.seven
 
 ```bash
 ./gradlew :shared:testAndroidHostTest
+```
+
+Layout-Screenshots aller Reiter (normale und große Schrift) nach `shared/build/screenshots`, dabei laufen die
+Tests zusätzlich auf dem Desktop-JVM:
+
+```bash
+./gradlew :shared:desktopTest
 ```
 
 Auf einem Mac zusätzlich im iOS-Simulator:

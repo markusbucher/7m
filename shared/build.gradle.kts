@@ -14,6 +14,9 @@ kotlin {
         withHostTest { }
     }
 
+    // Nur für Tests: rendert die Oberfläche auf dem Rechner als Bild (Layout-Prüfung ohne Gerät).
+    jvm("desktop")
+
     listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
         target.binaries.framework {
             baseName = "Shared"
@@ -40,6 +43,9 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.pdfbox.android)
+        }
+        getByName("desktopTest").dependencies {
+            implementation(compose.desktop.currentOs)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
