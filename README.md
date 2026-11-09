@@ -22,8 +22,7 @@ gespeicherten Stand auch offline. Ein fehlerhafter Spielbericht wird höchstens 
 
 Mannschaft und Liga sind fest eingestellt: `Team.kt` und `ApiParser.LEAGUE_URL`.
 
-Kennungen: Android-App-ID und Kotlin-Paket `de.tanpau.sevenm` (Android erlaubt keine Teile, die mit einer Ziffer
-beginnen), iOS-Bundle-ID `de.tanpau.7m`.
+Kennung überall (Kotlin-Paket, Android-App-ID, iOS-Bundle-ID): `de.tanpau.sevenm`.
 
 ## Tests
 

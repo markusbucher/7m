@@ -25,7 +25,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: de.tanpau.7m
+        PRODUCT_BUNDLE_IDENTIFIER: de.tanpau.sevenm
         PRODUCT_NAME: 7m
         # Swift-Modulnamen dürfen nicht mit einer Ziffer beginnen.
         PRODUCT_MODULE_NAME: SevenM
